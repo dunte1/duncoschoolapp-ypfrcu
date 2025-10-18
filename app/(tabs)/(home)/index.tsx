@@ -40,6 +40,7 @@ export default function HomeScreen() {
         ];
       case 'teacher':
         return [
+          { id: 'teacher-dashboard', title: 'Teacher Portal', icon: 'person.text.rectangle.fill', route: '/teacher', color: colors.primary },
           { id: 'attendance', title: 'Attendance', icon: 'checkmark.circle.fill', route: '/attendance', color: colors.secondary },
           { id: 'exams', title: 'Exams', icon: 'doc.text.fill', route: '/exams', color: colors.primary },
           ...baseModules,
@@ -54,6 +55,7 @@ export default function HomeScreen() {
         ];
       case 'parent':
         return [
+          { id: 'parent-dashboard', title: 'Parent Portal', icon: 'person.2.fill', route: '/parent', color: colors.primary },
           { id: 'attendance', title: 'Child Attendance', icon: 'checkmark.circle.fill', route: '/attendance', color: colors.secondary },
           { id: 'exams', title: 'Child Exams', icon: 'doc.text.fill', route: '/exams', color: colors.primary },
           { id: 'finance', title: 'Fees', icon: 'dollarsign.circle.fill', route: '/finance', color: colors.warning },
