@@ -25,17 +25,32 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const handleLogin = async () => {
+    console.log('Login button pressed');
+    
     if (!email || !password) {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
 
     try {
+      console.log('Calling login function...');
       await login({ email, password });
+      console.log('Login successful, navigating to home...');
+      
+      // Use replace to prevent going back to login screen
       router.replace('/(tabs)/(home)');
     } catch (error) {
-      Alert.alert('Login Failed', 'Invalid credentials. Please try again.');
+      console.log('Login failed in component:', error);
+      Alert.alert(
+        'Login Failed', 
+        'Invalid credentials. Please try the demo accounts shown below.'
+      );
     }
+  };
+
+  const quickLogin = (demoEmail: string, demoPassword: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
   };
 
   return (
@@ -65,6 +80,7 @@ export default function LoginScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
+              editable={!isLoading}
             />
           </View>
 
@@ -78,6 +94,7 @@ export default function LoginScreen() {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              editable={!isLoading}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <IconSymbol
@@ -89,7 +106,7 @@ export default function LoginScreen() {
           </View>
 
           <TouchableOpacity
-            style={styles.loginButton}
+            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
             onPress={handleLogin}
             disabled={isLoading}
           >
@@ -106,10 +123,39 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Demo Credentials:</Text>
-          <Text style={styles.demoText}>Admin: admin@dunco.com / admin123</Text>
-          <Text style={styles.demoText}>Teacher: teacher@dunco.com / teacher123</Text>
-          <Text style={styles.demoText}>Student: student@dunco.com / student123</Text>
+          <Text style={styles.footerText}>Demo Credentials (Tap to use):</Text>
+          
+          <TouchableOpacity 
+            style={styles.demoButton}
+            onPress={() => quickLogin('admin@dunco.com', 'admin123')}
+            disabled={isLoading}
+          >
+            <Text style={styles.demoButtonText}>👨‍💼 Admin: admin@dunco.com / admin123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.demoButton}
+            onPress={() => quickLogin('teacher@dunco.com', 'teacher123')}
+            disabled={isLoading}
+          >
+            <Text style={styles.demoButtonText}>👨‍🏫 Teacher: teacher@dunco.com / teacher123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.demoButton}
+            onPress={() => quickLogin('student@dunco.com', 'student123')}
+            disabled={isLoading}
+          >
+            <Text style={styles.demoButtonText}>👨‍🎓 Student: student@dunco.com / student123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.demoButton}
+            onPress={() => quickLogin('parent@dunco.com', 'parent123')}
+            disabled={isLoading}
+          >
+            <Text style={styles.demoButtonText}>👨‍👩‍👧 Parent: parent@dunco.com / parent123</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -169,6 +215,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
+  loginButtonDisabled: {
+    opacity: 0.6,
+  },
   loginButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
@@ -183,7 +232,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   footer: {
-    alignItems: 'center',
+    alignItems: 'stretch',
     padding: 16,
     backgroundColor: colors.card,
     borderRadius: 12,
@@ -192,11 +241,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  demoText: {
+  demoButton: {
+    backgroundColor: colors.background,
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  demoButtonText: {
     fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 4,
+    color: colors.text,
+    textAlign: 'center',
   },
 });

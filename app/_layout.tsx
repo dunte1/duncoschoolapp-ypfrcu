@@ -43,10 +43,14 @@ function RootLayoutNav() {
   }, [networkState.isConnected, networkState.isInternetReachable]);
 
   React.useEffect(() => {
+    console.log('Auth state changed - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
+    
     if (!isLoading) {
       if (isAuthenticated) {
+        console.log('User is authenticated, navigating to home');
         router.replace('/(tabs)/(home)');
       } else {
+        console.log('User is not authenticated, navigating to login');
         router.replace('/login');
       }
     }
@@ -78,6 +82,7 @@ function RootLayoutNav() {
   };
 
   if (isLoading) {
+    console.log('Auth is loading, showing splash screen');
     return null;
   }
 
