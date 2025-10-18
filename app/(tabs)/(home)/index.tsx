@@ -31,6 +31,7 @@ export default function HomeScreen() {
     switch (user?.role) {
       case 'admin':
         return [
+          { id: 'admin-panel', title: 'Admin Panel', icon: 'shield.checkered', route: '/admin', color: colors.error },
           { id: 'attendance', title: 'Attendance', icon: 'checkmark.circle.fill', route: '/attendance', color: colors.secondary },
           { id: 'exams', title: 'Exams', icon: 'doc.text.fill', route: '/exams', color: colors.primary },
           { id: 'library', title: 'Library', icon: 'book.fill', route: '/library', color: colors.accent },
