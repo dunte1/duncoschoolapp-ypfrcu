@@ -1,105 +1,128 @@
-import React from "react";
-import { Stack, Link } from "expo-router";
-import { FlatList, Pressable, StyleSheet, View, Text, Alert, Platform } from "react-native";
-import { IconSymbol } from "@/components/IconSymbol";
-import { GlassView } from "expo-glass-effect";
-import { useTheme } from "@react-navigation/native";
 
-const ICON_COLOR = "#007AFF";
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { useTheme } from '@react-navigation/native';
+import { IconSymbol } from '@/components/IconSymbol';
+import { useAuth } from '@/contexts/AuthContext';
+import { colors, darkColors } from '@/styles/commonStyles';
 
 export default function HomeScreen() {
   const theme = useTheme();
-  const modalDemos = [
-    {
-      title: "Standard Modal",
-      description: "Full screen modal presentation",
-      route: "/modal",
-      color: "#007AFF",
-    },
-    {
-      title: "Form Sheet",
-      description: "Bottom sheet with detents and grabber",
-      route: "/formsheet",
-      color: "#34C759",
-    },
-    {
-      title: "Transparent Modal",
-      description: "Overlay without obscuring background",
-      route: "/transparent-modal",
-      color: "#FF9500",
+  const router = useRouter();
+  const { user } = useAuth();
+  const isDark = theme.dark;
+  const themeColors = isDark ? darkColors : colors;
+
+  const getRoleBasedModules = () => {
+    const baseModules = [
+      { id: 'notifications', title: 'Notifications', icon: 'bell.fill', route: '/notifications', color: colors.accent },
+      { id: 'messages', title: 'Messages', icon: 'envelope.fill', route: '/messages', color: colors.primary },
+      { id: 'profile', title: 'Profile', icon: 'person.fill', route: '/(tabs)/profile', color: colors.secondary },
+    ];
+
+    switch (user?.role) {
+      case 'admin':
+        return [
+          { id: 'attendance', title: 'Attendance', icon: 'checkmark.circle.fill', route: '/attendance', color: colors.secondary },
+          { id: 'exams', title: 'Exams', icon: 'doc.text.fill', route: '/exams', color: colors.primary },
+          { id: 'library', title: 'Library', icon: 'book.fill', route: '/library', color: colors.accent },
+          { id: 'finance', title: 'Finance', icon: 'dollarsign.circle.fill', route: '/finance', color: colors.warning },
+          ...baseModules,
+        ];
+      case 'teacher':
+        return [
+          { id: 'attendance', title: 'Attendance', icon: 'checkmark.circle.fill', route: '/attendance', color: colors.secondary },
+          { id: 'exams', title: 'Exams', icon: 'doc.text.fill', route: '/exams', color: colors.primary },
+          ...baseModules,
+        ];
+      case 'student':
+        return [
+          { id: 'attendance', title: 'My Attendance', icon: 'checkmark.circle.fill', route: '/attendance', color: colors.secondary },
+          { id: 'exams', title: 'My Exams', icon: 'doc.text.fill', route: '/exams', color: colors.primary },
+          { id: 'library', title: 'Library', icon: 'book.fill', route: '/library', color: colors.accent },
+          { id: 'finance', title: 'Fees', icon: 'dollarsign.circle.fill', route: '/finance', color: colors.warning },
+          ...baseModules,
+        ];
+      case 'parent':
+        return [
+          { id: 'attendance', title: 'Child Attendance', icon: 'checkmark.circle.fill', route: '/attendance', color: colors.secondary },
+          { id: 'exams', title: 'Child Exams', icon: 'doc.text.fill', route: '/exams', color: colors.primary },
+          { id: 'finance', title: 'Fees', icon: 'dollarsign.circle.fill', route: '/finance', color: colors.warning },
+          ...baseModules,
+        ];
+      case 'librarian':
+        return [
+          { id: 'library', title: 'Library', icon: 'book.fill', route: '/library', color: colors.accent },
+          ...baseModules,
+        ];
+      case 'accountant':
+        return [
+          { id: 'finance', title: 'Finance', icon: 'dollarsign.circle.fill', route: '/finance', color: colors.warning },
+          ...baseModules,
+        ];
+      default:
+        return baseModules;
     }
-  ];
+  };
 
-  const renderModalDemo = ({ item }: { item: (typeof modalDemos)[0] }) => (
-    <GlassView style={[
-      styles.demoCard,
-      Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-    ]} glassEffectStyle="regular">
-      <View style={[styles.demoIcon, { backgroundColor: item.color }]}>
-        <IconSymbol name="square.grid.3x3" color="white" size={24} />
-      </View>
-      <View style={styles.demoContent}>
-        <Text style={[styles.demoTitle, { color: theme.colors.text }]}>{item.title}</Text>
-        <Text style={[styles.demoDescription, { color: theme.dark ? '#98989D' : '#666' }]}>{item.description}</Text>
-      </View>
-      <Link href={item.route as any} asChild>
-        <Pressable>
-          <GlassView style={[
-            styles.tryButton,
-            Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' }
-          ]} glassEffectStyle="clear">
-            <Text style={[styles.tryButtonText, { color: theme.colors.primary }]}>Try It</Text>
-          </GlassView>
-        </Pressable>
-      </Link>
-    </GlassView>
-  );
-
-  const renderHeaderRight = () => (
-    <Pressable
-      onPress={() => Alert.alert("Not Implemented", "This feature is not implemented yet")}
-      style={styles.headerButtonContainer}
-    >
-      <IconSymbol name="plus" color={theme.colors.primary} />
-    </Pressable>
-  );
-
-  const renderHeaderLeft = () => (
-    <Pressable
-      onPress={() => Alert.alert("Not Implemented", "This feature is not implemented yet")}
-      style={styles.headerButtonContainer}
-    >
-      <IconSymbol
-        name="gear"
-        color={theme.colors.primary}
-      />
-    </Pressable>
-  );
+  const modules = getRoleBasedModules();
 
   return (
     <>
-      {Platform.OS === 'ios' && (
-        <Stack.Screen
-          options={{
-            title: "Building the app...",
-            headerRight: renderHeaderRight,
-            headerLeft: renderHeaderLeft,
-          }}
-        />
-      )}
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <FlatList
-          data={modalDemos}
-          renderItem={renderModalDemo}
-          keyExtractor={(item) => item.route}
-          contentContainerStyle={[
-            styles.listContainer,
-            Platform.OS !== 'ios' && styles.listContainerWithTabBar
-          ]}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+      <Stack.Screen
+        options={{
+          title: 'Dashboard',
+          headerShown: Platform.OS === 'ios',
+        }}
+      />
+      <ScrollView
+        style={[styles.container, { backgroundColor: themeColors.background }]}
+        contentContainerStyle={[
+          styles.contentContainer,
+          Platform.OS !== 'ios' && styles.contentContainerWithTabBar,
+        ]}
+      >
+        <View style={[styles.welcomeCard, { backgroundColor: themeColors.card }]}>
+          <Text style={[styles.welcomeText, { color: themeColors.textSecondary }]}>
+            Welcome back,
+          </Text>
+          <Text style={[styles.userName, { color: themeColors.text }]}>
+            {user?.name || 'User'}
+          </Text>
+          <View style={[styles.roleBadge, { backgroundColor: colors.primary }]}>
+            <Text style={styles.roleText}>{user?.role?.toUpperCase()}</Text>
+          </View>
+        </View>
+
+        <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+          Quick Access
+        </Text>
+
+        <View style={styles.modulesGrid}>
+          {modules.map((module) => (
+            <TouchableOpacity
+              key={module.id}
+              style={[styles.moduleCard, { backgroundColor: themeColors.card }]}
+              onPress={() => router.push(module.route as any)}
+            >
+              <View style={[styles.moduleIcon, { backgroundColor: module.color + '20' }]}>
+                <IconSymbol name={module.icon as any} size={32} color={module.color} />
+              </View>
+              <Text style={[styles.moduleTitle, { color: themeColors.text }]}>
+                {module.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
     </>
   );
 }
@@ -107,55 +130,76 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor handled dynamically
   },
-  listContainer: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-  },
-  listContainerWithTabBar: {
-    paddingBottom: 100, // Extra padding for floating tab bar
-  },
-  demoCard: {
-    borderRadius: 12,
+  contentContainer: {
     padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
   },
-  demoIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  contentContainerWithTabBar: {
+    paddingBottom: 100,
+  },
+  welcomeCard: {
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  welcomeText: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  userName: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  roleBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  roleText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 16,
+  },
+  modulesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  moduleCard: {
+    width: '48%',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  moduleIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginBottom: 12,
   },
-  demoContent: {
-    flex: 1,
-  },
-  demoTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-    // color handled dynamically
-  },
-  demoDescription: {
-    fontSize: 14,
-    lineHeight: 18,
-    // color handled dynamically
-  },
-  headerButtonContainer: {
-    padding: 6,
-  },
-  tryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  tryButtonText: {
+  moduleTitle: {
     fontSize: 14,
     fontWeight: '600',
-    // color handled dynamically
+    textAlign: 'center',
   },
 });
